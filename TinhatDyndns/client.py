@@ -6,6 +6,10 @@ __author__ = 'christoph'
 
 
 class Client():
+    def __init__(self, keys_directory):
+        self.gpg = gnupg.GPG(gpgbinary='"C:\\Program Files (x86)\\GNU\\GnuPG\\gpg.exe"',  gnupghome=keys_directory)
+        self.gpg.encoding = 'utf-8'
+
     def create(self, hostname):
         print "create"
     def query(self, hostname):
@@ -14,13 +18,6 @@ class Client():
         print "update"
     def delete(self, hostname):
         print "delete"
-
-
-PROJECT_PATH = os.path.abspath(os.path.dirname(__name__))
-gpg = gnupg.GPG(gpgbinary='"C:\\Program Files (x86)\\GNU\\GnuPG\\gpg.exe"',  gnupghome=os.path.join(PROJECT_PATH, 'keys'))
-gpg.encoding = 'utf-8'
-
-
 
 conn = httplib.HTTPConnection("www.python.org")
 conn.request("GET", "/index.html")
