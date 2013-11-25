@@ -29,7 +29,13 @@ class Client():
             print 'ERROR: hostname {} could not be registered, status {}\n{}'.format(hostname, str(response.status), response.read())
 
     def query(self, hostname):
-        print "query"
+        response = self.send_signed_message_via_method('', 'GET', hostname)
+        if response.status == 200:
+            print 'hostname {} found\n{}'.format(hostname, response.read())
+        elif response.status == 404:
+            print 'hostname {} not found\n{}'.format(hostname, response.read())
+        else:
+            print 'ERROR: could not query hostname {}, status {}\n{}'.format(hostname, str(response.status), response.read())
 
     def update(self, hostname, ipv4, ipv6):
         print "update"

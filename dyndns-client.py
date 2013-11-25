@@ -28,13 +28,11 @@ args = parser.parse_args()
 service_client = client.Client(args.keys_directory,args.service_host,args.service_port)
 
 if args.command == 'register':
-    print args.command
     service_client.create(args.hostname)
 elif args.command == 'update':
     print args.command
 elif args.command == 'query':
-    print args.command
+    service_client.query(args.hostname)
 elif args.command == 'delete':
-    print args.command
     service_client.delete(args.hostname)
 
