@@ -36,4 +36,5 @@ elif args.command == 'query':
     print args.command
 elif args.command == 'delete':
     print args.command
+    service_client.delete(args.hostname)
 
