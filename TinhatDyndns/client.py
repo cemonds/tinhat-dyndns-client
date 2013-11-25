@@ -21,18 +21,10 @@ class Client():
         message = {'publicKey': ascii_armored_public_key}
         json_message = json.dumps(message,separators=(',',':'))
 
-        messageFile = open('C:\\Users\\christoph\\Desktop\\message_client.txt', 'w')
-        messageFile.write(json_message)
-        messageFile.close()
-
         signature = self.gpg.sign(json_message, keyid=key, detach=True)
         conn = httplib.HTTPConnection(self.service_host, self.service_port)
         body = {'message':message, 'signature':signature.data}
         body_string = json.dumps(body,separators=(',',':'))
-
-        messageFile = open('C:\\Users\\christoph\\Desktop\\body_client.txt', 'w')
-        messageFile.write(body_string)
-        messageFile.close()
 
         conn.request("POST", "/hosts/"+hostname, body_string)
         response = conn.getresponse()
