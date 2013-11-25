@@ -15,7 +15,7 @@ parser_create.add_argument('--hostname', help='the hostname to register', requir
 parser_update = subparsers.add_parser('update', help='updates the ip addresses of a hostname')
 parser_update.add_argument('--hostname', help='the hostname to update', required=True)
 parser_update.add_argument('--ipv4', help='the ipv4 address', required=True)
-parser_update.add_argument('--ipv6', help='the ipv6 address')
+parser_update.add_argument('--ipv6', help='the ipv6 address', default='')
 
 parser_create = subparsers.add_parser('query', help='queries a hostname')
 parser_create.add_argument('--hostname', help='the hostname to query', required=True)
@@ -30,7 +30,7 @@ service_client = client.Client(args.keys_directory,args.service_host,args.servic
 if args.command == 'register':
     service_client.create(args.hostname)
 elif args.command == 'update':
-    print args.command
+    service_client.update(args.hostname, args.ipv4, args.ipv6)
 elif args.command == 'query':
     service_client.query(args.hostname)
 elif args.command == 'delete':

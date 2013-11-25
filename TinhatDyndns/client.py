@@ -38,30 +38,52 @@ class Client():
             print 'ERROR: could not query hostname {}, status {}\n{}'.format(hostname, str(response.status), response.read())
 
     def update(self, hostname, ipv4, ipv6):
-        print "update"
+        key = self.find_key_for_hostname(hostname)
+        if key:
+            keyid = key['keyid']
+
+            message = {'ipv4': ipv4,'ipv6':ipv6}
+
+            signed_message = self.sign_message(message, keyid)
+            response = self.send_signed_message_via_method(signed_message, 'PUT', hostname)
+            if response.status == 204:
+                print 'hostname {} successfully updated\n'.format(hostname)
+            else:
+                print 'ERROR: hostname {} could not be updated, status {}\n{}'.format(hostname, str(response.status), response.read())
+        else:
+            print 'ERROR: no key found for hostname {}'.format(hostname)
 
     def delete(self, hostname):
-        key_name = self.name_of_key(hostname)
-        private_keys = self.gpg.list_keys(True)
+        key = self.find_key_for_hostname(hostname)
+        if key:
+            keyid = key['keyid']
+            fingerprint = key['fingerprint']
 
-        for key in private_keys:
-            for uid in key['uids']:
-                if key_name in uid:
-                    message = {'confirm': 'delete'}
+            message = {'confirm': 'delete'}
 
-                    signed_message = self.sign_message(message, key['keyid'])
-                    response = self.send_signed_message_via_method(signed_message, 'DELETE', hostname)
-                    if response.status == 204:
-                        self.gpg.delete_keys(key['fingerprint'], True)
-                        print 'hostname {} successfully deleted\n'.format(hostname)
+            signed_message = self.sign_message(message, keyid)
+            response = self.send_signed_message_via_method(signed_message, 'DELETE', hostname)
+            if response.status == 204:
+                self.gpg.delete_keys(fingerprint, True)
+                print 'hostname {} successfully deleted\n'.format(hostname)
 
-                    else:
-                        print 'ERROR: hostname {} could not be deleted, status {}\n{}'.format(hostname, str(response.status), response.read())
-                    return
-        print 'ERROR: no key found for hostname {}'.format(hostname)
+            else:
+                print 'ERROR: hostname {} could not be deleted, status {}\n{}'.format(hostname, str(response.status), response.read())
+        else:
+            print 'ERROR: no key found for hostname {}'.format(hostname)
 
     def name_of_key(self, hostname):
         return 'dyndns key for hostname "{}"'.format(hostname)
+
+    def find_key_for_hostname(self, hostname):
+        key_name = self.name_of_key(hostname)
+        private_keys = self.gpg.list_keys(True)
+        for key in private_keys:
+            for uid in key['uids']:
+                if key_name in uid:
+                    return key
+        return None
+
 
     def sign_message(self, message, key):
         json_message = json.dumps(message,separators=(',',':'))
