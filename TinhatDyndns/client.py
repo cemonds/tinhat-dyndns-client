@@ -5,6 +5,32 @@ import os
 
 __author__ = 'christoph'
 
+class IPDetector():
+    def __init__(self,ipv4_service_host, ipv4_service_port, ipv6_service_host, ipv6_service_port):
+        self.ipv4_service_host = ipv4_service_host
+        self.ipv4_service_port = ipv4_service_port
+        self.ipv6_service_host = ipv6_service_host
+        self.ipv6_service_port = ipv6_service_port
+
+    def detect_ipv4_address(self):
+        connection = httplib.HTTPConnection(self.ipv4_service_host, self.ipv4_service_port)
+        return self.check_response(connection)
+
+    def detect_ipv6_address(self):
+        connection = httplib.HTTPConnection(self.ipv6_service_host, self.ipv6_service_port)
+        return self.check_response(connection)
+
+    def check_response(self, connection):
+        try:
+            connection.request('GET', '/')
+            response = connection.getresponse()
+            if response.status != 200:
+                return None
+            else:
+                return response.read().strip()
+        except:
+            return None
+
 
 class Client():
     def __init__(self, keys_directory, service_host, service_port):
@@ -47,7 +73,7 @@ class Client():
             signed_message = self.sign_message(message, keyid)
             response = self.send_signed_message_via_method(signed_message, 'PUT', hostname)
             if response.status == 204:
-                print 'hostname {} successfully updated\n'.format(hostname)
+                print 'hostname {} successfully updated to {}(ipv4) and {}(ipv6)\n'.format(hostname,ipv4,ipv6)
             else:
                 print 'ERROR: hostname {} could not be updated, status {}\n{}'.format(hostname, str(response.status), response.read())
         else:
