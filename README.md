@@ -1,4 +1,8 @@
-tinhat-dyndns-server
+tinhat-dyndns-client
 ====================
 
-A dyndns server based on NSD-4 with a web API requiring to legitimate the updates with pgp signatures.
+
+== Dependencies
+
+* python-gnupg (installable via pip)
+* psutil (installable via pip)

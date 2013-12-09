@@ -1,7 +1,6 @@
 import gnupg
 import httplib
 import json
-import os
 
 __author__ = 'christoph'
 
@@ -33,9 +32,9 @@ class IPDetector():
 
 
 class Client():
-    def __init__(self, keys_directory, service_host, service_port):
+    def __init__(self, gpg_binary_path, keys_directory, service_host, service_port):
 
-        self.gpg = gnupg.GPG(gpgbinary='"C:\\Program Files (x86)\\GNU\\GnuPG\\gpg.exe"',  gnupghome=keys_directory)
+        self.gpg = gnupg.GPG(gpgbinary=gpg_binary_path,  gnupghome=keys_directory)
         self.gpg.encoding = 'utf-8'
         self.service_host = service_host
         self.service_port = service_port
@@ -43,10 +42,10 @@ class Client():
     def create(self, hostname):
         input_data = self.gpg.gen_key_input(key_type="RSA", key_length=2048, name_real=self.name_of_key(hostname), name_email='')
         key = self.gpg.gen_key(input_data)
-        ascii_armored_public_key = self.gpg.export_keys(key)
+        ascii_armored_public_key = self.gpg.export_keys(key.fingerprint)
         message = {'publicKey': ascii_armored_public_key}
 
-        signed_message = self.sign_message(message, key)
+        signed_message = self.sign_message(message, key.fingerprint)
         response = self.send_signed_message_via_method(signed_message, 'POST', hostname)
 
         if response.status == 201:

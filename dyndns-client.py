@@ -1,10 +1,20 @@
 import argparse
 from TinhatDyndns import client
 from TinhatDyndns.client import IPDetector
+from sys import platform
 
 __author__ = 'christoph'
 
+if platform == "linux" or platform == "linux2":
+    gpg_binary_path = '/usr/bin/gpg'
+elif platform == "darwin":
+    gpg_binary_path = '/usr/bin/gpg'
+elif platform == "win32":
+    gpg_binary_path = '"C:\\Program Files (x86)\\GNU\\GnuPG\\gpg.exe"'
+
+
 parser = argparse.ArgumentParser(description='Manage hostnames of the tinhat dyndns server.')
+parser.add_argument('--gpg-binary', nargs='?', help='the path to the gpg binary', default=gpg_binary_path)
 parser.add_argument('--keys-directory', nargs='?', help='the directory which contains the keyring', required=True)
 parser.add_argument('--service-host', nargs='?', help='the hostname of the dyndns service', default='dyndns.tinhat.de')
 parser.add_argument('--service-port', nargs='?', help='the port of the dyndns service', default='80')
@@ -30,7 +40,7 @@ parser_delete.add_argument('--hostname', help='the hostname to query', required=
 
 args = parser.parse_args()
 
-service_client = client.Client(args.keys_directory,args.service_host,args.service_port)
+service_client = client.Client(args.gpg_binary, args.keys_directory,args.service_host,args.service_port)
 
 if args.command == 'register':
     service_client.create(args.hostname)
